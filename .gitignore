@@ -1,0 +1,13 @@
+# Workspace coordinator only tracks these files
+# Each component (frontend, services, infra) is a separate repo
+
+/frontend/
+/services/
+/infra/
+
+# Local development
+.env
+.env.*
+.DS_Store
+*.swp
+*.swo

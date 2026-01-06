@@ -1,0 +1,45 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "frontend:start",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "start"],
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "group": "build"
+    },
+    {
+      "label": "auth-api:run",
+      "type": "shell",
+      "command": "go",
+      "args": ["run", "main.go"],
+      "options": { "cwd": "${workspaceFolder}/services/authentication-api" },
+      "group": "build"
+    },
+    {
+      "label": "authz-api:run",
+      "type": "shell",
+      "command": "go",
+      "args": ["run", "main.go"],
+      "options": { "cwd": "${workspaceFolder}/services/authorization-api" },
+      "group": "build"
+    },
+    {
+      "label": "entity-api:run",
+      "type": "shell",
+      "command": "uvicorn",
+      "args": ["main:app", "--reload", "--host", "0.0.0.0", "--port", "8003"],
+      "options": { "cwd": "${workspaceFolder}/services/entity-api" },
+      "group": "build"
+    },
+    {
+      "label": "reporting-api:run",
+      "type": "shell",
+      "command": "uvicorn",
+      "args": ["main:app", "--reload", "--host", "0.0.0.0", "--port", "8004"],
+      "options": { "cwd": "${workspaceFolder}/services/reporting-api" },
+      "group": "build"
+    }
+  ]
+}
