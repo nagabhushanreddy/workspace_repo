@@ -1,0 +1,10 @@
+msjsdiag.vscode-react-native
+expo.vscode-expo-tools
+dbaeumer.vscode-eslint
+golang.Go
+ms-python.python
+ms-python.vscode-pylance
+hashicorp.terraform
+ms-azuretools.vscode-docker
+redhat.vscode-yaml
+github.vscode-github-actions

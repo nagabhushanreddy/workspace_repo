@@ -72,16 +72,15 @@ cd services/reporting-api && python -m venv .venv && source .venv/bin/activate &
 ## Cloning into New Workspace
 
 ```bash
-git clone git@github.com:myorg/workspace.git
+git clone git@github.com:nagabhushanreddy/workspace.git
 cd workspace
+
+# Configure your setup in .polyrepo.config (already included)
+# Then install SDKs and clone all component repos:
 ./install_sdks.sh
-./clone_repos.sh \
-  git@github.com:myorg/authentication-api.git \
-  git@github.com:myorg/authorization-api.git \
-  git@github.com:myorg/entity-api.git \
-  git@github.com:myorg/reporting-api.git \
-  git@github.com:myorg/frontend.git \
-  git@github.com:myorg/infra.git
+./clone_repos.sh          # Uses HTTPS from config
+# or
+./clone_repos.sh --ssh    # Uses SSH
 ```
 
 ## Workflow
