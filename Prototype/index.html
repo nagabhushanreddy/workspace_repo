@@ -1,0 +1,2821 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiFinance - Loan App (Enhanced)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1976D2;
+            --primary-dark: #1565C0;
+            --success: #4CAF50;
+            --error: #F44336;
+            --background: #FFFFFF;
+            --surface: #F5F5F5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border: #DDDDDD;
+            --warning: #FF9800;
+            --info: #2196F3;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f5f5;
+            color: var(--text-primary);
+        }
+
+        .phone-frame {
+            max-width: 480px;
+            height: 100vh;
+            margin: 0 auto;
+            background: var(--background);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            height: 100%;
+            overflow-y: auto;
+            animation: fadeIn .4s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* LOGIN */
+        .login-screen {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+        }
+
+        .login-header {
+            text-align: center;
+            padding: 30px 24px;
+            background: #fff;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-form {
+            flex: 0;
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #fff;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .form-group input {
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all .3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(25, 118, 210, .05);
+        }
+
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input {
+            padding-right: 48px;
+            flex: 1;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 4px 8px;
+            color: var(--text-secondary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group label {
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, .3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(25, 118, 210, .1);
+        }
+
+        .btn-logout {
+            width: 100%;
+            background: var(--error);
+            color: #fff;
+            margin-top: 16px;
+        }
+
+        .btn-logout:hover {
+            background: #d32f2f;
+        }
+
+        .login-links {
+            padding: 16px 24px 32px;
+            text-align: center;
+            background: #fff;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .login-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-links p {
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* GENERIC HEADERS */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: #fff;
+        }
+
+        .header-back {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--primary);
+            padding: 8px;
+        }
+
+        .header h2 {
+            flex: 1;
+            text-align: center;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        /* OTP */
+        .otp-content {
+            flex: 1;
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .otp-instructions {
+            text-align: center;
+        }
+
+        .otp-instructions p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .otp-instructions p.email {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .otp-input {
+            width: 50px;
+            height: 60px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 24px;
+            text-align: center;
+            font-weight: 600;
+            transition: all .3s;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(25, 118, 210, .05);
+        }
+
+        .timer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* WELCOME */
+        .welcome-screen {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+        }
+
+        .splash-image {
+            flex: 0 0 60%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .welcome-message {
+            flex: 0 0 40%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            gap: 8px;
+            background: #fff;
+            color: var(--text-primary);
+        }
+
+        /* DASHBOARD */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dashboard-header h2 {
+            flex: 1;
+            text-align: center;
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .dashboard-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            padding-bottom: 70px;
+        }
+
+        .greeting {
+            margin-bottom: 24px;
+        }
+
+        .greeting p {
+            margin: 0;
+        }
+
+        .card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .card-label {
+            font-size: 12px;
+            opacity: .9;
+            margin-bottom: 8px;
+        }
+
+        .card-amount {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 4px;
+        }
+
+        .section h3 {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+        }
+
+        /* Transactions */
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .transaction-item {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .transaction-amount.positive {
+            color: var(--success);
+        }
+
+        .transaction-amount.negative {
+            color: var(--error);
+        }
+
+        /* Loan products (dashboard cards) */
+        .loan-products {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .loan-card {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .3s;
+        }
+
+        .loan-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, .15);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: var(--background);
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all .3s;
+            border-bottom: 3px solid transparent;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Loans list */
+        .loans-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .loan-item {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .loan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(76, 175, 80, .15);
+            color: var(--success);
+        }
+
+        .loan-details {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .payment-card {
+            background: rgba(25, 118, 210, .08);
+            border: 1px solid rgba(25, 118, 210, .2);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        /* BURNDOWN CHART */
+        .chart-container {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 24px 0;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+            text-align: center;
+        }
+
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .chart-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .bar-group {
+            display: flex;
+            gap: 6px;
+            height: 160px;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .bar {
+            flex: 1;
+            background-color: var(--primary);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+            min-width: 20px;
+            position: relative;
+        }
+
+        .bar.outstanding {
+            background-color: var(--error);
+            opacity: 0.7;
+        }
+
+        .bar.paid {
+            background-color: var(--success);
+            opacity: 0.7;
+        }
+
+        .bar-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .bar-amount {
+            font-size: 9px;
+            color: var(--text-primary);
+            font-weight: 600;
+            position: absolute;
+            top: -18px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .legend-color.outstanding {
+            background-color: var(--error);
+        }
+
+        .legend-color.paid {
+            background-color: var(--success);
+        }
+
+        /* Products listing screen */
+        .products-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .product-card {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .product-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .product-details {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .product-detail-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 4px 0;
+        }
+
+        /* Documents */
+        .documents-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .document-item {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .doc-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(76, 175, 80, .15);
+            color: var(--success);
+        }
+
+        /* Profile */
+        .profile-header {
+            text-align: center;
+            padding: 20px 0 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        /* Settings */
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-item label {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .setting-item select {
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--background);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all .3s;
+        }
+
+        .setting-item select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(25, 118, 210, .05);
+        }
+
+        .toggle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-button {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 8px;
+            transition: all .3s;
+        }
+
+        .setting-button:hover {
+            background: rgba(25, 118, 210, .05);
+            border-color: var(--primary);
+        }
+
+        /* Credit Score (OTO Score) */
+        .score-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .score-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .score-scale {
+            margin-top: 12px;
+        }
+
+        .scale-track {
+            width: 100%;
+            height: 10px;
+            background: #eee;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scale-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF6B6B 0%, #FFC107 50%, #4CAF50 100%);
+            width: 0%;
+            transition: width .6s ease;
+        }
+
+        .scale-pointer {
+            position: absolute;
+            top: -6px;
+            width: 2px;
+            height: 22px;
+            background: #333;
+            left: 0;
+            transform: translateX(-1px);
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* Payment Screen */
+        .pay-summary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .pay-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .pill {
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            background: #fff;
+        }
+
+        .pill.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, .15);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 12px 0;
+        }
+
+        .inline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        /* Modal (Gateway simulation) */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #fff;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+        }
+
+        .modal-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: rgba(33, 150, 243, .1);
+            color: var(--info);
+            font-weight: 700;
+        }
+
+        .success {
+            color: var(--success);
+        }
+
+        /* Notifications */
+        .notif-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notif-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .notif-item.warning {
+            border-left-color: var(--warning);
+        }
+
+        .notif-item.success {
+            border-left-color: var(--success);
+        }
+
+        .notif-item .meta {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="phone-frame">
+        <!-- LOGIN -->
+        <div class="screen login-screen" data-name="login">
+            <div class="login-header">
+                <div
+                    style="background:var(--surface); border-radius:12px; padding:48px 24px; margin:24px 16px; text-align:center; border:2px dashed var(--border)">
+                    <p style="margin:0; font-size:14px; color:var(--text-secondary)">Logo & Branding</p>
+                </div>
+            </div>
+            <form class="login-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" value="john.doe@example.com" readonly="">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-password" value="Password@123" readonly="">
+                        <button type="button" class="password-toggle"
+                            onclick="togglePassword('login-password', this)">👁️</button>
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="showScreen('otp')">Sign In</button>
+            </form>
+            <div class="login-links">
+                <a href="#" onclick="showScreen('forgot-password'); return false;">Forgot Password?</a>
+                <p>Don't have an account? <a href="#" onclick="showScreen('signup'); return false;">Sign Up</a>
+                </p>
+            </div>
+        </div>
+        <!-- OTP -->
+        <div class="screen" data-name="otp">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('login')">← Back</button>
+                <h2>Verify OTP</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="otp-content">
+                <div class="otp-instructions">
+                    <p>Enter the 6-digit code sent to</p>
+                    <p class="email">john.doe@example.com</p>
+                </div>
+                <div class="otp-inputs">
+                    <input class="otp-input" maxlength="1" placeholder="-">
+                    <input class="otp-input" maxlength="1" placeholder="-">
+                    <input class="otp-input" maxlength="1" placeholder="-">
+                    <input class="otp-input" maxlength="1" placeholder="-">
+                    <input class="otp-input" maxlength="1" placeholder="-">
+                    <input class="otp-input" maxlength="1" placeholder="-">
+                </div>
+                <div class="timer">Code expires in 5:00</div>
+                <button type="button" class="btn btn-primary" onclick="showScreen('welcome')">Verify
+                    OTP</button>
+                <p class="timer" style="margin-top:16px">Didn't get the code? Check spam folder</p>
+            </div>
+        </div>
+        <!-- SIGN UP -->
+        <div class="screen" data-name="signup">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('login')">← Back</button>
+                <h2>Sign Up</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div style="padding:16px 0">
+                    <p style="text-align:center; color:var(--text-secondary); margin:0 0 24px 0">Create your account to
+                        get started</p>
+                    <form class="form">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" placeholder="+62 812 3456 7890">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" placeholder="Create a password">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" placeholder="Re-enter password">
+                        </div>
+                        <div class="checkbox-group" style="margin:16px 0">
+                            <input type="checkbox" id="terms">
+                            <label for="terms" style="font-size:13px">I agree to the Terms & Conditions and Privacy
+                                Policy</label>
+                        </div>
+                        <div style="text-align:center">
+                            <button type="button" class="btn btn-primary" style="width:100%"
+                                onclick="alert('Account created! Please verify your email.'); showScreen('login')">Create
+                                Account</button>
+                        </div>
+                        <p style="text-align:center; margin-top:16px; font-size:14px; color:var(--text-secondary)">
+                            Already have an account? <a href="#" onclick="showScreen('login'); return false;"
+                                style="color:var(--primary); text-decoration:none; font-weight:600">Sign In</a></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- FORGOT PASSWORD -->
+        <div class="screen" data-name="forgot-password">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('login')">← Back</button>
+                <h2>Forgot Password</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div style="padding:32px 0; text-align:center">
+                    <div style="font-size:64px; margin-bottom:24px">🔐</div>
+                    <h3 style="margin:0 0 12px 0">Reset Your Password</h3>
+                    <p style="color:var(--text-secondary); margin:0 0 32px 0; font-size:14px">Enter your email address
+                        and we'll send you a link to reset your password</p>
+                    <form class="form">
+                        <div class="form-group" style="text-align:left">
+                            <label>Email Address</label>
+                            <input type="email" placeholder="Enter your email" value="">
+                        </div>
+                        <div style="text-align:center; margin-top:16px">
+                            <button type="button" class="btn btn-primary" style="width:100%"
+                                onclick="alert('Password reset link sent to your email!'); showScreen('login')">Send
+                                Reset Link</button>
+                        </div>
+                        <p style="margin-top:24px; font-size:14px; color:var(--text-secondary)">Remember your password?
+                            <a href="#" onclick="showScreen('login'); return false;"
+                                style="color:var(--primary); text-decoration:none; font-weight:600">Sign In</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- WELCOME -->
+        <div class="screen welcome-screen" data-name="welcome">
+            <div class="splash-image">🎉</div>
+            <div class="welcome-message">
+                <h1>Welcome!</h1>
+                <h2>Welcome, John Doe</h2>
+                <p>You're all set to get started</p>
+            </div>
+        </div>
+        <!-- DASHBOARD -->
+        <div class="screen active" data-name="dashboard">
+            <div class="dashboard-header">
+                <span style="width:40px">📱</span>
+                <h2>Dashboard</h2>
+                <button class="header-back" style="color:#fff" onclick="showScreen('notifications')">🔔</button>
+            </div>
+            <div class="dashboard-content">
+                <div class="greeting">
+                    <p>Hello, John Doe 👋</p>
+                    <p style="color:var(--text-secondary); margin:0">Here's your financial overview</p>
+                </div>
+                <div class="card">
+                    <div class="card-label">Total Balance</div>
+                    <p class="card-amount">Rp 125,000,000</p>
+                    <div style="border-top:1px solid rgba(255,255,255,.2); padding-top:12px; margin-top:12px;">
+                        <span style="font-size:12px;">Account Status: Active</span>
+                    </div>
+                </div>
+                <!-- OTO SCORE -->
+                <div class="score-card">
+                    <div class="inline" style="margin-bottom:8px">
+                        <h3 style="margin:0">OTO Score</h3>
+                        <span class="badge">Scale: 0 – 1000</span>
+                    </div>
+                    <div class="score-row">
+                        <div class="score-value" id="scoreValue">720</div>
+                        <div style="font-size:12px; color:var(--text-secondary)">Your credit health indicator</div>
+                    </div>
+                    <div class="score-scale">
+                        <div class="scale-track" id="scoreTrack">
+                            <div class="scale-fill" id="scoreFill" style="width: 72%;"></div>
+                            <div class="scale-pointer" id="scorePointer" style="left: calc(72%);"></div>
+                        </div>
+                        <div class="scale-labels">
+                            <span>0</span>
+                            <span>200</span>
+                            <span>400</span>
+                            <span>600</span>
+                            <span>800</span>
+                            <span>1000</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="section"
+                    style="background:linear-gradient(135deg,#FFE082 0%,#FFD54F 100%); border-radius:12px; padding:16px; margin-bottom:16px;">
+                    <div style="display:flex; align-items:center; gap:12px">
+                        <div style="font-size:40px">🎁</div>
+                        <div style="flex:1">
+                            <h4 style="margin:0 0 4px 0; color:#333; font-size:16px; font-weight:600">MCOM (Cash Loan) Special Offer</h4>
+                            <p style="margin:0 0 8px 0; color:#555; font-size:13px">Get instant cash up to IDR 5M with
+                                MCOM loans at low interest rate especially for you</p>
+                            <button class="btn" onclick="startApplication('MCOM (Cash Loan)')"
+                                style="padding:8px 16px; font-size:12px; background:#E65100; color:#fff; border:none; border-radius:4px; cursor:pointer; font-weight:600">Apply
+                                Now</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div style="font-size:32px; margin-bottom:8px">💰</div>
+                        <p style="font-size:12px; color:var(--text-secondary); margin:0">Outstanding</p>
+                        <p class="stat-value">Rp 125,000,000</p>
+                    </div>
+                    <div class="stat-card">
+                        <div style="font-size:32px; margin-bottom:8px">✅</div>
+                        <p style="font-size:12px; color:var(--text-secondary); margin:0">Paid</p>
+                        <p class="stat-value">Rp 175,000,000</p>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Credit Limit Usage</h3>
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 16px;">
+                        <div style="flex: 1; text-align: center;">
+                            <svg width="140" height="140" style="margin: 0 auto;">
+                                <defs>
+                                    <lineargradient id="donutGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1"></stop>
+                                        <stop offset="100%" style="stop-color:#EE5A52;stop-opacity:1"></stop>
+                                    </lineargradient>
+                                    <lineargradient id="donutGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1"></stop>
+                                        <stop offset="100%" style="stop-color:#45A049;stop-opacity:1"></stop>
+                                    </lineargradient>
+                                </defs>
+                                <!-- Outstanding (125M out of 300M = 41.67%) -->
+                                <circle cx="70" cy="70" r="55" fill="none" stroke="url(#donutGrad1)" stroke-width="14"
+                                    stroke-dasharray="144.4 341.35" transform="rotate(-90 70 70)"></circle>
+                                <!-- Available (175M out of 300M = 58.33%) -->
+                                <circle cx="70" cy="70" r="55" fill="none" stroke="url(#donutGrad2)" stroke-width="14"
+                                    stroke-dasharray="196.95 341.35" stroke-dashoffset="-144.4"
+                                    transform="rotate(-90 70 70)"></circle>
+                                <!-- Center text -->
+                                <text x="70" y="65" text-anchor="middle" font-size="18" font-weight="600"
+                                    fill="#333">125M</text>
+                                <text x="70" y="85" text-anchor="middle" font-size="12" fill="#666">Outstanding</text>
+                            </svg>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span style="font-size: 12px; color: var(--text-secondary);">Credit Limit</span>
+                                    <span style="font-weight: 600; font-size: 14px;">IDR 300M</span>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span
+                                        style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center;">
+                                        <span
+                                            style="width: 8px; height: 8px; background: #FF6B6B; border-radius: 50%; margin-right: 6px;"></span>Outstanding
+                                    </span>
+                                    <span style="font-weight: 600; font-size: 14px;">IDR 125M</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden;">
+                                    <div style="width: 41.67%; height: 100%; background: #FF6B6B; border-radius: 3px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span
+                                        style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center;">
+                                        <span
+                                            style="width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; margin-right: 6px;"></span>Available
+                                        Limit </span>
+                                    <span style="font-weight: 600; font-size: 14px; color: #4CAF50;">IDR 175M</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden;">
+                                    <div style="width: 58.33%; height: 100%; background: #4CAF50; border-radius: 3px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Loan Outstanding vs Paid</h3>
+                    <div class="chart-container">
+                        <div class="chart">
+                            <div class="chart-bar">
+                                <div class="bar-group">
+                                    <div class="bar outstanding" style="height: 80%;">
+                                        <span class="bar-amount">120M</span>
+                                    </div>
+                                    <div class="bar paid" style="height: 20%;">
+                                        <span class="bar-amount">20M</span>
+                                    </div>
+                                </div>
+                                <div class="bar-label">Jan</div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-group">
+                                    <div class="bar outstanding" style="height: 75%;">
+                                        <span class="bar-amount">112M</span>
+                                    </div>
+                                    <div class="bar paid" style="height: 25%;">
+                                        <span class="bar-amount">28M</span>
+                                    </div>
+                                </div>
+                                <div class="bar-label">Feb</div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-group">
+                                    <div class="bar outstanding" style="height: 70%;">
+                                        <span class="bar-amount">105M</span>
+                                    </div>
+                                    <div class="bar paid" style="height: 30%;">
+                                        <span class="bar-amount">35M</span>
+                                    </div>
+                                </div>
+                                <div class="bar-label">Mar</div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-group">
+                                    <div class="bar outstanding" style="height: 60%;">
+                                        <span class="bar-amount">90M</span>
+                                    </div>
+                                    <div class="bar paid" style="height: 40%;">
+                                        <span class="bar-amount">35M</span>
+                                    </div>
+                                </div>
+                                <div class="bar-label">Apr</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color outstanding"></div>
+                                <span>Outstanding</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color paid"></div>
+                                <span>Paid</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Recent Transactions</h3>
+                    <div class="transaction-list">
+                        <div class="transaction-item">
+                            <div>
+                                <p style="font-weight:600; font-size:14px">Loan Payment</p>
+                                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px">Dec 25, 2025</p>
+                            </div>
+                            <p class="transaction-amount negative">-Rp 5,000,000</p>
+                        </div>
+                        <div class="transaction-item">
+                            <div>
+                                <p style="font-weight:600; font-size:14px">Loan Disbursement</p>
+                                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px">Dec 20, 2025</p>
+                            </div>
+                            <p class="transaction-amount positive">+Rp 50,000,000</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Available Loan Products</h3>
+                    <div class="loan-products">
+                        <!-- Only MCOM is shown as requested -->
+                        <div class="loan-card" onclick="showScreen('loan-products')">
+                            <div style="font-size:32px; margin-bottom:8px">💰</div>
+                            <p style="margin:0 0 4px 0; font-weight:600; font-size:14px">MCOM (Cash Loan)</p>
+                            <p style="margin:0; font-size:12px; color:var(--text-secondary)">APR: 10.5%</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align:center; padding-bottom:80px">
+                    <button class="btn btn-primary" style="width:100%; max-width:300px"
+                        onclick="showScreen('loans')">View All Loans</button>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- LOANS -->
+        <div class="screen" data-name="loans">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('dashboard'); setActiveNav(0)">← Back</button>
+                <h2>My Loans</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div class="loans-list">
+                    <div class="loan-item">
+                        <div class="loan-header">
+                            <div>
+                                <h3>Two Wheeler Loan</h3>
+                                <p style="color:var(--text-secondary); margin:0; font-size:12px">Active</p>
+                            </div>
+                            <span class="status-badge">Active</span>
+                        </div>
+                        <div class="loan-details">
+                            <div class="detail-row">
+                                <span class="label">Loan Amount:</span>
+                                <span class="value">Rp 50,000,000</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Interest Rate:</span>
+                                <span class="value">9.5% APR</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Remaining Balance:</span>
+                                <span class="value">Rp 25,000,000</span>
+                            </div>
+                        </div>
+                        <div class="payment-card">
+                            <p style="font-size:12px; color:var(--text-secondary); margin:0">Next Payment Due</p>
+                            <p style="font-size:14px; margin:4px 0; font-weight:600" id="dueDate1">Jan 15, 2026</p>
+                            <p style="font-size:16px; color:var(--primary); margin:0; font-weight:700" id="dueAmt1">Rp
+                                3,500,000</p>
+                        </div>
+                        <div style="text-align:center">
+                            <button class="btn btn-outline" style="width:100%; max-width:300px"
+                                onclick="openPayment('Two Wheeler Loan', 'Rp 3,500,000', 'Jan 15, 2026')">Make
+                                Payment</button>
+                        </div>
+                    </div>
+                    <div class="loan-item">
+                        <div class="loan-header">
+                            <div>
+                                <h3>Four Wheeler Loan</h3>
+                                <p style="color:var(--text-secondary); margin:0; font-size:12px">Active</p>
+                            </div>
+                            <span class="status-badge">Active</span>
+                        </div>
+                        <div class="loan-details">
+                            <div class="detail-row">
+                                <span class="label">Loan Amount:</span>
+                                <span class="value">Rp 250,000,000</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Interest Rate:</span>
+                                <span class="value">7.2% APR</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Remaining Balance:</span>
+                                <span class="value">Rp 100,000,000</span>
+                            </div>
+                        </div>
+                        <div class="payment-card">
+                            <p style="font-size:12px; color:var(--text-secondary); margin:0">Next Payment Due</p>
+                            <p style="font-size:14px; margin:4px 0; font-weight:600">Jan 10, 2026</p>
+                            <p style="font-size:16px; color:var(--primary); margin:0; font-weight:700">Rp 7,500,000</p>
+                        </div>
+                        <div style="text-align:center">
+                            <button class="btn btn-outline" style="width:100%; max-width:300px"
+                                onclick="openPayment('Four Wheeler Loan', 'Rp 7,500,000', 'Jan 10, 2026')">Make
+                                Payment</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box"
+                    style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; margin:24px 0;">
+                    <h4 style="margin:0 0 8px 0">Need More?</h4>
+                    <p style="margin:0 0 12px 0; color:var(--text-secondary); font-size:14px">Explore our loan products
+                        and apply for additional credit.</p>
+                    <div style="text-align:center">
+                        <button class="btn btn-primary" style="width:100%; max-width:300px"
+                            onclick="showScreen('loan-products')">View
+                            Products</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- PAYMENT (Installment via Gateway) -->
+        <div class="screen" data-name="payment">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('loans'); setActiveNav(1)">← Back</button>
+                <h2>Loan Installment</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div class="pay-summary">
+                    <div class="inline">
+                        <div>
+                            <div style="font-size:12px; color:var(--text-secondary)">Loan</div>
+                            <div id="payLoanName" style="font-weight:700">?</div>
+                        </div>
+                        <div style="text-align:right">
+                            <div style="font-size:12px; color:var(--text-secondary)">Due Date</div>
+                            <div id="payDueDate" style="font-weight:700">?</div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="inline">
+                        <div style="font-size:12px; color:var(--text-secondary)">Next Due Amount</div>
+                        <div id="payDueAmount" style="font-weight:800; color:var(--primary)">?</div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Payment Amount</h3>
+                    <div style="margin-top:8px">
+                        <label style="display:flex; align-items:center; gap:8px; font-size:14px">
+                            <input type="radio" name="amt" checked="" onclick="setAmountMode('due')"> Pay due
+                            amount </label>
+                        <label style="display:flex; align-items:center; gap:8px; font-size:14px; margin-top:6px">
+                            <input type="radio" name="amt" onclick="setAmountMode('custom')"> Other amount
+                        </label>
+                        <input id="customAmt" type="number" placeholder="Enter amount in Rp"
+                            style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; margin-top:8px; display:none">
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Payment Method</h3>
+                    <div class="pay-methods" style="margin-top:8px">
+                        <div class="pill active" data-method="card" onclick="selectMethod(this)">💳 Card</div>
+                        <div class="pill" data-method="va" onclick="selectMethod(this)">🏦 Bank Transfer (VA)</div>
+                        <div class="pill" data-method="ewallet" onclick="selectMethod(this)">📱 E-Wallet</div>
+                        <div class="pill" data-method="qris" onclick="selectMethod(this)">📲 QRIS</div>
+                    </div>
+                </div>
+                <div class="info-box"
+                    style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; margin:16px 0;">
+                    <p style="margin:0; font-size:12px; color:var(--text-secondary)">By continuing, you will be
+                        redirected to our secure payment gateway to complete your transaction.</p>
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="launchGateway()">Pay Now</button>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- LOAN PRODUCTS (Only MCOM visible) -->
+        <div class="screen" data-name="loan-products">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('dashboard'); setActiveNav(0)">← Back</button>
+                <h2>Loan Products</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div class="products-list">
+                    <div class="product-card">
+                        <div class="product-header">
+                            <div style="font-size:32px">💰</div>
+                            <div>
+                                <h3>MCOM (Cash Loan)</h3>
+                                <p style="font-size:12px; color:var(--text-secondary); margin:0">Quick unsecured cash
+                                    for any need</p>
+                            </div>
+                        </div>
+                        <div class="product-details">
+                            <div class="product-detail-item">
+                                <span class="label">Amount Range</span>
+                                <span class="value">Rp 10K - Rp 5M</span>
+                            </div>
+                            <div class="product-detail-item">
+                                <span class="label">Interest Rate</span>
+                                <span class="value">10.5% APR</span>
+                            </div>
+                            <div class="product-detail-item">
+                                <span class="label">Tenure</span>
+                                <span class="value">3-36 months</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width:100%"
+                            onclick="startApplication('MCOM (Cash Loan)')">Apply
+                            Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- APPLICATION FORM -->
+        <div class="screen" data-name="application-form">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('dashboard'); setActiveNav(0)">← Back</button>
+                <h2>Apply for Loan</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div style="margin-bottom:24px">
+                    <h3 style="margin-bottom:16px">Application Progress</h3>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+                        <div style="text-align:center; flex:1">
+                            <div id="stepIndicator1"
+                                style="width:36px; height:36px; background:var(--primary); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto; font-weight:600; font-size:14px;">
+                                1</div>
+                            <p style="font-size:11px; margin-top:4px; color:var(--text-secondary)">Product</p>
+                        </div>
+                        <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+                            <div id="stepConnector1" style="flex:1; height:2px; background:var(--primary); margin:0 4px"></div>
+                        </div>
+                        <div style="text-align:center; flex:1">
+                            <div id="stepIndicator2"
+                                style="width:36px; height:36px; background:#E0E0E0; color:var(--text-secondary); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto; font-weight:600; font-size:14px;">
+                                2</div>
+                            <p style="font-size:11px; margin-top:4px; color:var(--text-secondary)">Amount</p>
+                        </div>
+                        <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+                            <div id="stepConnector2" style="flex:1; height:2px; background:#E0E0E0; margin:0 4px"></div>
+                        </div>
+                        <div style="text-align:center; flex:1">
+                            <div id="stepIndicator3"
+                                style="width:36px; height:36px; background:#E0E0E0; color:var(--text-secondary); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto; font-weight:600; font-size:14px;">
+                                3</div>
+                            <p style="font-size:11px; margin-top:4px; color:var(--text-secondary)">Review</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="section" id="appStep1">
+                    <h3>Selected Product</h3>
+                    <div style="background:var(--surface); padding:16px; border-radius:8px; margin-top:12px">
+                        <p id="selectedProduct" style="font-weight:600; font-size:16px; margin:0">MCOM (Cash Loan)</p>
+                        <p id="selectedRate" style="font-size:12px; color:var(--text-secondary); margin:4px 0 0 0">APR:
+                            10.5%</p>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-top:16px; justify-content:space-between">
+                        <button class="btn btn-outline" style="flex:1; margin:0; opacity:0.5; cursor:not-allowed"
+                            disabled>Change Product</button>
+                        <button class="btn btn-primary" style="flex:1; margin:0"
+                            onclick="nextApplicationStep()">Next</button>
+                    </div>
+                </div>
+                <div class="section" id="appStep2" style="display:none">
+                    <h3>Loan Details</h3>
+                    <div style="margin-top:12px">
+                        <label
+                            style="display:block; font-size:12px; font-weight:600; margin-bottom:4px; color:var(--text-secondary)">Loan
+                            Amount</label>
+                        <input type="number" id="loanAmount" placeholder="Enter amount in Rp"
+                            style="width:100%; padding:12px; border:1px solid var(--border); border-radius:4px; font-size:14px; margin-bottom:16px">
+                        <label
+                            style="display:block; font-size:12px; font-weight:600; margin-bottom:4px; color:var(--text-secondary)">Tenure
+                            (months)</label>
+                        <select id="tenure"
+                            style="width:100%; padding:12px; border:1px solid var(--border); border-radius:4px; font-size:14px; margin-bottom:16px">
+                            <option value="">Select tenure</option>
+                            <option value="12">12 months</option>
+                            <option value="24">24 months</option>
+                            <option value="36">36 months</option>
+                        </select>
+                        <div style="background:var(--surface); padding:12px; border-radius:4px;">
+                            <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px 0">Estimated Monthly
+                                Payment</p>
+                            <p id="monthlyPayment"
+                                style="font-weight:600; font-size:16px; color:var(--primary); margin:0">-</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-top:16px; justify-content:space-between">
+                        <button class="btn btn-outline" style="flex:1; margin:0"
+                            onclick="previousApplicationStep()">Back</button>
+                        <button class="btn btn-primary" style="flex:1; margin:0"
+                            onclick="nextApplicationStep()">Next</button>
+                    </div>
+                </div>
+                <div class="section" id="appStep3" style="display:none">
+                    <h3>Review Application</h3>
+                    <div style="margin-top:12px">
+                        <div style="background:var(--surface); padding:16px; border-radius:8px; margin-bottom:12px;">
+                            <div class="inline" style="margin-bottom:8px">
+                                <span style="color:var(--text-secondary)">Product</span>
+                                <span style="font-weight:600" id="reviewProduct">MCOM (Cash Loan)</span>
+                            </div>
+                            <div class="inline" style="margin-bottom:8px">
+                                <span style="color:var(--text-secondary)">Amount</span>
+                                <span style="font-weight:600" id="reviewAmount">-</span>
+                            </div>
+                            <div class="inline">
+                                <span style="color:var(--text-secondary)">Tenure</span>
+                                <span style="font-weight:600" id="reviewTenure">-</span>
+                            </div>
+                        </div>
+                        <div class="info-box">
+                            <p style="font-size:12px; margin:0">By submitting this application, you agree to our terms
+                                and conditions. We'll review your application and contact you within 24 hours.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-top:16px; justify-content:space-between">
+                        <button class="btn btn-outline" style="flex:1; margin:0"
+                            onclick="previousApplicationStep()">Back</button>
+                        <button class="btn btn-primary" style="flex:1; margin:0"
+                            onclick="submitApplication()">Submit Application</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- APPLICATIONS HISTORY -->
+        <div class="screen" data-name="applications">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('dashboard'); setActiveNav(0)">← Back</button>
+                <h2>My Applications</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div class="loans-list">
+                    <div class="loan-item">
+                        <div class="loan-header">
+                            <div>
+                                <h3>Two Wheeler Loan</h3>
+                                <p style="color:var(--text-secondary); margin:0; font-size:12px">Applied 10 Jan 2026</p>
+                            </div>
+                            <span class="status-badge"
+                                style="background:rgba(76,175,80,.15); color:#4CAF50">Approved</span>
+                        </div>
+                        <div class="loan-details">
+                            <div class="detail-row">
+                                <span class="label">Applied Amount:</span>
+                                <span class="value">Rp 25,000,000</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Approved Amount:</span>
+                                <span class="value">Rp 25,000,000</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Interest Rate:</span>
+                                <span class="value">9.5% APR</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Tenure:</span>
+                                <span class="value">36 months</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline" style="width:100%">View Details</button>
+                    </div>
+                    <div class="loan-item">
+                        <div class="loan-header">
+                            <div>
+                                <h3>Four Wheeler Loan</h3>
+                                <p style="color:var(--text-secondary); margin:0; font-size:12px">Applied 5 Jan 2026</p>
+                            </div>
+                            <span class="status-badge"
+                                style="background:rgba(76,175,80,.15); color:#4CAF50">Approved</span>
+                        </div>
+                        <div class="loan-details">
+                            <div class="detail-row">
+                                <span class="label">Applied Amount:</span>
+                                <span class="value">Rp 250,000,000</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Approved Amount:</span>
+                                <span class="value">Rp 250,000,000</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Interest Rate:</span>
+                                <span class="value">7.2% APR</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Tenure:</span>
+                                <span class="value">60 months</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline" style="width:100%">View Details</button>
+                    </div>
+                    <div class="loan-item">
+                        <div class="loan-header">
+                            <div>
+                                <h3>MCOM (Cash Loan)</h3>
+                                <p style="color:var(--text-secondary); margin:0; font-size:12px">Applied 1 Jan 2026</p>
+                            </div>
+                            <span class="status-badge"
+                                style="background:rgba(255,152,0,.15); color:#FF9800">Pending</span>
+                        </div>
+                        <div class="loan-details">
+                            <div class="detail-row">
+                                <span class="label">Applied Amount:</span>
+                                <span class="value">Rp 2,000,000</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Status:</span>
+                                <span class="value" style="color:#FF9800; font-weight:600">Under Review</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Interest Rate:</span>
+                                <span class="value">10.5% APR</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Tenure:</span>
+                                <span class="value">12 months</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline" style="width:100%">View Details</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- DOCUMENTS -->
+        <div class="screen" data-name="documents">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('dashboard'); setActiveNav(0)">← Back</button>
+                <h2>Documents</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <button class="btn btn-primary" style="margin-bottom:16px; width:100%">📤 Upload Document</button>
+                <div class="section">
+                    <h3>Identity Documents</h3>
+                    <div class="documents-list">
+                        <div class="document-item">
+                            <div style="font-size:32px">🪪</div>
+                            <div style="flex:1">
+                                <h3>KTP (e-KTP)</h3>
+                                <p style="font-size:11px; color:#999; margin:4px 0 0 0">National Identity Card</p>
+                            </div>
+                            <span class="doc-status">Verified</span>
+                        </div>
+                        <div class="document-item">
+                            <div style="font-size:32px">🛂</div>
+                            <div style="flex:1">
+                                <h3>Passport</h3>
+                                <p style="font-size:11px; color:#999; margin:4px 0 0 0">Valid for 6+ months</p>
+                            </div>
+                            <span class="doc-status">Verified</span>
+                        </div>
+                        <div class="document-item">
+                            <div style="font-size:32px">📱</div>
+                            <div style="flex:1">
+                                <h3>IKD (Digital ID)</h3>
+                                <p style="font-size:11px; color:#999; margin:4px 0 0 0">Mobile digital identity</p>
+                            </div>
+                            <span class="doc-status"
+                                style="background:rgba(33,150,243,.15); color:#1976D2">Uploaded</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Address Proof</h3>
+                    <div class="documents-list">
+                        <div class="document-item">
+                            <div style="font-size:32px">👨‍👩‍👧‍👦</div>
+                            <div style="flex:1">
+                                <h3>Kartu Keluarga (KK)</h3>
+                                <p style="font-size:11px; color:#999; margin:4px 0 0 0">Family Registry Card</p>
+                            </div>
+                            <span class="doc-status">Verified</span>
+                        </div>
+                        <div class="document-item">
+                            <div style="font-size:32px">🏠</div>
+                            <div style="flex:1">
+                                <h3>Certificate of Domicile (SKD)</h3>
+                                <p style="font-size:11px; color:#999; margin:4px 0 0 0">Current residence address</p>
+                            </div>
+                            <span class="doc-status">Verified</span>
+                        </div>
+                        <div class="document-item">
+                            <div style="font-size:32px">🔢</div>
+                            <div style="flex:1">
+                                <h3>NIK (Nomor Induk Kependudukan)</h3>
+                                <p style="font-size:11px; color:#999; margin:4px 0 0 0">16-digit identity number</p>
+                            </div>
+                            <span class="doc-status"
+                                style="background:rgba(255,152,0,.15); color:#FF9800">Pending</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Financial Documents</h3>
+                    <div class="documents-list">
+                        <div class="document-item">
+                            <div style="font-size:32px">🏦</div>
+                            <div style="flex:1">
+                                <h3>Bank Statements</h3>
+                                <p style="font-size:11px; color:#999; margin:4px 0 0 0">Last 3 months</p>
+                            </div>
+                            <span class="doc-status">Verified</span>
+                        </div>
+                        <div class="document-item">
+                            <div style="font-size:32px">💵</div>
+                            <div style="flex:1">
+                                <h3>Proof of Financial Sufficiency</h3>
+                                <p style="font-size:11px; color:#999; margin:4px 0 0 0">Balance confirmation</p>
+                            </div>
+                            <span class="doc-status"
+                                style="background:rgba(255,152,0,.15); color:#FF9800">Pending</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <h4>📋 Document Checklist</h4>
+                    <div style="margin-top:12px">
+                        <div style="margin-bottom:8px; font-size:13px">
+                            <span style="margin-right:8px">✅</span>
+                            <span>KTP (National Identity Card)</span>
+                        </div>
+                        <div style="margin-bottom:8px; font-size:13px">
+                            <span style="margin-right:8px">✅</span>
+                            <span>Kartu Keluarga (Family Card)</span>
+                        </div>
+                        <div style="margin-bottom:8px; font-size:13px">
+                            <span style="margin-right:8px">✅</span>
+                            <span>Bank Statements (3 months)</span>
+                        </div>
+                        <div style="margin-bottom:8px; font-size:13px">
+                            <span style="margin-right:8px">⏳</span>
+                            <span style="color:#FF9800">Certificate of Domicile (SKD)</span>
+                        </div>
+                        <div style="margin-bottom:8px; font-size:13px">
+                            <span style="margin-right:8px">⏳</span>
+                            <span style="color:#FF9800">Proof of Financial Sufficiency</span>
+                        </div>
+                        <div style="font-size:13px">
+                            <span style="margin-right:8px">›</span>
+                            <span>Passport (if applicable)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- PROFILE -->
+        <div class="screen" data-name="profile">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('dashboard'); setActiveNav(0)">← Back</button>
+                <h2>Profile</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div class="profile-header">
+                    <div style="font-size:64px; margin-bottom:16px">👤</div>
+                    <h2>John Doe</h2>
+                    <p style="color:var(--text-secondary)">john.doe@example.com</p>
+                </div>
+
+                <!-- KYC Info Card -->
+                <div class="section">
+                    <h3>KYC Information</h3>
+                    <div
+                        style="background:var(--surface); border-radius:12px; padding:16px; border:1px solid var(--border);">
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                            <div
+                                style="width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; background:rgba(76,175,80,.2); color:var(--success);">
+                                ✓</div>
+                            <div>
+                                <p style="margin:0; font-weight:600; font-size:16px">KYC Verified</p>
+                                <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:12px">Your account is
+                                    fully verified</p>
+                            </div>
+                        </div>
+                        <div
+                            style="border-top:1px solid var(--border); padding-top:12px; display:flex; flex-direction:column; gap:12px">
+                            <div style="display:flex; justify-content:space-between; align-items:center">
+                                <span style="font-size:12px; color:var(--text-secondary)">Verification Date</span>
+                                <span style="font-size:13px; font-weight:600">Jan 1, 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Info Card -->
+                <div class="section">
+                    <h3>Personal Information</h3>
+                    <div
+                        style="background:var(--surface); border-radius:12px; padding:16px; border:1px solid var(--border); display:flex; flex-direction:column; gap:16px">
+                        <div>
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Full
+                                Name</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">John Doe</p>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,.05); padding-top:16px">
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Email
+                                Address</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">john.doe@example.com</p>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,.05); padding-top:16px">
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Phone
+                                Number</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">+62 812 3456 7890</p>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,.05); padding-top:16px">
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Date
+                                of Birth</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">January 15, 1990</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address Card -->
+                <div class="section">
+                    <h3>Address</h3>
+                    <div
+                        style="background:var(--surface); border-radius:12px; padding:16px; border:1px solid var(--border); display:flex; flex-direction:column; gap:16px">
+                        <div>
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Street
+                                Address</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">Jl. Sudirman No. 42, Kav. 12</p>
+                        </div>
+                        <div
+                            style="border-top:1px solid rgba(0,0,0,.05); padding-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px">
+                            <div>
+                                <label
+                                    style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">RT/RW</label>
+                                <p style="margin:0; font-size:14px; font-weight:500">05/03</p>
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Postal
+                                    Code</label>
+                                <p style="margin:0; font-size:14px; font-weight:500">12190</p>
+                            </div>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,.05); padding-top:16px">
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Kelurahan
+                                (Village)</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">Senayan</p>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,.05); padding-top:16px">
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Kecamatan
+                                (District)</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">Kebayoran Baru</p>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,.05); padding-top:16px">
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">City/Regency</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">Jakarta Selatan</p>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,.05); padding-top:16px">
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Province</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">DKI Jakarta</p>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,.05); padding-top:16px">
+                            <label
+                                style="font-size:12px; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px">Country</label>
+                            <p style="margin:0; font-size:14px; font-weight:500">Indonesia</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align:center; padding-bottom:80px; margin-top:16px">
+                    <button class="btn btn-outline" style="width:100%; max-width:300px"
+                        onclick="showScreen('edit-profile')">Edit Profile</button>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- EDIT PROFILE -->
+        <div class="screen" data-name="edit-profile">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('profile'); setActiveNav(3)">← Back</button>
+                <h2>Edit Profile</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <!-- Personal Information Form -->
+                <div class="section">
+                    <h3>Personal Information</h3>
+                    <div
+                        style="background:var(--surface); border-radius:12px; padding:16px; border:1px solid var(--border);">
+                        <form class="form">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" value="John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" value="john.doe@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" value="+62 812 3456 7890">
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" value="1990-01-15">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Address Information Form -->
+                <div class="section">
+                    <h3>Address Information</h3>
+                    <div
+                        style="background:var(--surface); border-radius:12px; padding:16px; border:1px solid var(--border);">
+                        <form class="form">
+                            <div class="form-group">
+                                <label>Street Address</label>
+                                <input type="text" value="Jl. Sudirman No. 42, Kav. 12">
+                            </div>
+                            <div class="form-group">
+                                <label>RT/RW</label>
+                                <input type="text" value="05/03">
+                                <label>Postal Code</label>
+                                <input type="text" value="12190">
+                            </div>
+                            <div class="form-group">
+                                <label>Kelurahan (Village)</label>
+                                <input type="text" value="Senayan">
+                            </div>
+                            <div class="form-group">
+                                <label>Kecamatan (District)</label>
+                                <input type="text" value="Kebayoran Baru">
+                            </div>
+                            <div class="form-group">
+                                <label>City/Regency</label>
+                                <input type="text" value="Jakarta Selatan">
+                            </div>
+                            <div class="form-group">
+                                <label>Province</label>
+                                <input type="text" value="DKI Jakarta">
+                            </div>
+                            <div class="form-group">
+                                <label>Country</label>
+                                <input type="text" value="Indonesia">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div style="text-align:center; padding-bottom:80px; margin-top:8px">
+                    <button class="btn btn-primary" style="width:100%; max-width:300px"
+                        onclick="alert('Profile updated successfully!'); showScreen('profile')">Save Changes</button>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- SETTINGS -->
+        <div class="screen" data-name="settings">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('dashboard'); setActiveNav(0)">← Back</button>
+                <h2>Settings</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div class="section">
+                    <h3>Preferences</h3>
+                    <div class="setting-item">
+                        <label>Currency</label>
+                        <select>
+                            <option>IDR (Indonesian Rupiah)</option>
+                            <option>USD (US Dollar)</option>
+                            <option>INR (Indian Rupee)</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Theme</label>
+                        <select>
+                            <option>Light</option>
+                            <option>Dark</option>
+                            <option>Auto</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Notifications</h3>
+                    <div class="toggle-item">
+                        <div>
+                            <p style="margin:0; font-weight:600">Email Notifications</p>
+                            <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:12px">Receive updates via
+                                email</p>
+                        </div>
+                        <input type="checkbox" checked="">
+                    </div>
+                    <div class="toggle-item">
+                        <div>
+                            <p style="margin:0; font-weight:600">SMS Notifications</p>
+                            <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:12px">Receive SMS alerts
+                            </p>
+                        </div>
+                        <input type="checkbox" checked="">
+                    </div>
+                    <div class="toggle-item">
+                        <div>
+                            <p style="margin:0; font-weight:600">Push Notifications</p>
+                            <p style="margin:4px 0 0 0; color:var(--text-secondary); font-size:12px">App notifications
+                            </p>
+                        </div>
+                        <input type="checkbox">
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Security</h3>
+                    <button class="setting-button">Change Password</button>
+                    <button class="setting-button">Two-Factor Authentication</button>
+                    <button class="setting-button">Active Sessions</button>
+                </div>
+                <div class="section">
+                    <h3>About</h3>
+                    <button class="setting-button">Terms &amp; Conditions</button>
+                    <button class="setting-button">Privacy Policy</button>
+                    <button class="setting-button">Help &amp; Support</button>
+                </div>
+                <button class="btn btn-logout" onclick="showScreen('login')" style="margin-bottom: 20px;">Logout</button>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- NOTIFICATIONS -->
+        <div class="screen" data-name="notifications">
+            <div class="header">
+                <button class="header-back" onclick="showScreen('dashboard'); setActiveNav(0)">← Back</button>
+                <h2>Notifications</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div class="notif-list">
+                    <div class="notif-item warning">
+                        <div style="font-weight:700">Payment Due: Rp 3,500,000 by Jan 15, 2026</div>
+                        <div class="meta">Two Wheeler Loan ? 2 days left</div>
+                    </div>
+                    <div class="notif-item success">
+                        <div style="font-weight:700">Payment Successful</div>
+                        <div class="meta">Four Wheeler Loan ? Dec 15, 2025 ? Rp 7,500,000</div>
+                    </div>
+                    <div class="notif-item">
+                        <div style="font-weight:700">Application Status Update</div>
+                        <div class="meta">MCOM (Cash Loan) ? Under Review</div>
+                    </div>
+                    <div class="notif-item">
+                        <div style="font-weight:700">MCOM (Cash Loan) Special Offer</div>
+                        <div class="meta">Unlock extra limit on MCOM with timely repayments</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+        <!-- PAYMENT SUCCESS SCREEN -->
+        <div class="screen" data-name="payment-success">
+            <div class="header">
+                <div style="width:40px"></div>
+                <h2>Payment Status</h2>
+                <div style="width:40px"></div>
+            </div>
+            <div class="dashboard-content">
+                <div style="text-align:center; padding:24px 0">
+                    <div style="font-size:80px; margin-bottom:16px">✓</div>
+                    <h2 style="margin:0 0 8px 0; color:var(--success)">Payment Successful!</h2>
+                    <p style="margin:0; color:var(--text-secondary); font-size:14px">Your payment has been processed
+                        successfully</p>
+                </div>
+
+                <!-- Transaction Details Card -->
+                <div class="section">
+                    <h3>Transaction Details</h3>
+                    <div
+                        style="background:var(--surface); border-radius:12px; padding:16px; border:1px solid var(--border);">
+                        <div style="display:flex; flex-direction:column; gap:12px">
+                            <div
+                                style="display:flex; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid rgba(0,0,0,.05)">
+                                <span style="font-size:12px; color:var(--text-secondary)">Transaction ID</span>
+                                <span style="font-size:13px; font-weight:600" id="txnId">TXN-2026-001234</span>
+                            </div>
+                            <div
+                                style="display:flex; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid rgba(0,0,0,.05)">
+                                <span style="font-size:12px; color:var(--text-secondary)">Date & Time</span>
+                                <span style="font-size:13px; font-weight:600" id="txnDate">Jan 16, 2026 10:30 AM</span>
+                            </div>
+                            <div
+                                style="display:flex; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid rgba(0,0,0,.05)">
+                                <span style="font-size:12px; color:var(--text-secondary)">Loan</span>
+                                <span style="font-size:13px; font-weight:600" id="txnLoan">-</span>
+                            </div>
+                            <div
+                                style="display:flex; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid rgba(0,0,0,.05)">
+                                <span style="font-size:12px; color:var(--text-secondary)">Payment Method</span>
+                                <span style="font-size:13px; font-weight:600" id="txnMethod">Card</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding-top:4px">
+                                <span style="font-size:14px; font-weight:600">Amount Paid</span>
+                                <span style="font-size:16px; font-weight:700; color:var(--primary)"
+                                    id="txnAmount">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="text-align:center; padding-bottom:80px; margin-top:8px">
+                    <button class="btn btn-primary" style="width:100%; max-width:300px; margin-bottom:16px"
+                        onclick="downloadReceipt()">📄 Download Receipt</button>
+                    <button class="btn btn-outline" style="width:100%; max-width:300px"
+                        onclick="showScreen('dashboard'); setActiveNav(0)">Back to Dashboard</button>
+                </div>
+            </div>
+            <div class="bottom-nav"></div>
+        </div>
+    </div>
+    <!-- MODAL: Gateway Simulation -->
+    <div class="modal" id="gatewayModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <strong>Secure Payment Gateway</strong>
+                <span class="badge">Sandbox</span>
+            </div>
+            <div class="modal-body">
+                <p style="margin:0 0 8px 0">Order: <span id="gwLoanName" style="font-weight:700">?</span>
+                </p>
+                <p style="margin:0 0 8px 0">Amount: <span id="gwAmount"
+                        style="font-weight:800; color:var(--primary)">?</span>
+                </p>
+                <p style="margin:0; font-size:12px; color:var(--text-secondary)">Method: <span id="gwMethod">Card</span>
+                </p>
+                <div class="divider"></div>
+                <div style="display:flex; gap:12px; margin-top:16px">
+                    <button class="btn btn-outline" style="width:100%" onclick="closeGateway()">Cancel</button>
+                    <button class="btn btn-primary" style="width:100%" onclick="completeGateway(true)">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL: Gateway Simulation -->
+    <div class="modal" id="gatewayModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <strong>Secure Payment Gateway</strong>
+                <span class="badge">Sandbox</span>
+            </div>
+            <div class="modal-body">
+                <p style="margin:0 0 8px 0">Order: <span id="gwLoanName" style="font-weight:700">?</span>
+                </p>
+                <p style="margin:0 0 8px 0">Amount: <span id="gwAmount"
+                        style="font-weight:800; color:var(--primary)">?</span>
+                </p>
+                <p style="margin:0; font-size:12px; color:var(--text-secondary)">Method: <span id="gwMethod">Card</span>
+                </p>
+                <div class="divider"></div>
+                <div style="display:flex; gap:12px; margin-top:16px">
+                    <button class="btn btn-outline" style="width:100%" onclick="closeGateway()">Cancel</button>
+                    <button class="btn btn-primary" style="width:100%" onclick="completeGateway(true)">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // ============================================
+        // ICONS CONFIGURATION
+        // ============================================
+        const ICONS = {
+            // Navigation
+            home: '🏠',
+            loans: '✍',
+            documents: '📄',
+            profile: '👤',
+            settings: '⚙️',
+            
+            // Actions
+            back: '←',
+            close: '✕',
+            eye: '👁️',
+            eyeClosed: '🙈',
+            
+            // Status & Indicators
+            success: '✅',
+            pending: '⏳',
+            optional: '⚪',
+            checklistHeader: '📋',
+            verified: '✅',
+            
+            // Financial
+            money: '💰',
+            cashBag: '💵',
+            bank: '🏦',
+            creditCard: '💳',
+            mobilePayment: '📱',
+            qrPayment: '📲',
+            
+            // Documents
+            idCard: '🪪',
+            passport: '🛂',
+            phone: '📱',
+            family: '👨‍👩‍👧‍👦',
+            home: '🏠',
+            numbers: '🔢',
+            upload: '📤',
+            
+            // Special
+            gift: '🎁',
+            checkmark: '✅',
+            chart: '📊'
+        };
+
+        // ============================================
+        // NAVIGATION CONFIGURATION
+        // ============================================
+        const NAV_ITEMS = [
+            { screen: 'dashboard', index: 0, icon: 'home', label: 'Home' },
+            { screen: 'loans', index: 1, icon: 'loans', label: 'Loans' },
+            { screen: 'documents', index: 2, icon: 'documents', label: 'Documents' },
+            { screen: 'profile', index: 3, icon: 'profile', label: 'Profile' },
+            { screen: 'settings', index: 4, icon: 'settings', label: 'Settings' }
+        ];
+
+        // ============================================
+        // APPLICATION DATA
+        // ============================================
+        const APP_DATA = {
+            user: {
+                name: 'John Doe',
+                email: 'john.doe@example.com',
+                phone: '+62 812 3456 7890',
+                ktp: '3201234567890123',
+                address: {
+                    street: 'Jl. Sudirman No. 123',
+                    city: 'Jakarta Selatan',
+                    state: 'DKI Jakarta',
+                    zipCode: '12190',
+                    country: 'Indonesia'
+                },
+                kycStatus: 'Verified',
+                kycDate: 'Jan 10, 2025'
+            },
+            
+            creditSummary: {
+                creditLimit: 300000000,
+                outstanding: 125000000,
+                paid: 175000000,
+                availableLimit: 175000000,
+                outstandingPercentage: 41.67
+            },
+            
+            loans: [
+                {
+                    id: 1,
+                    type: 'Two Wheeler Loan',
+                    status: 'Active',
+                    loanAmount: 50000000,
+                    remainingBalance: 25000000,
+                    paidAmount: 25000000,
+                    interestRate: 9.5,
+                    nextPaymentDue: 'Jan 15, 2026',
+                    nextPaymentAmount: 3500000
+                },
+                {
+                    id: 2,
+                    type: 'Four Wheeler Loan',
+                    status: 'Active',
+                    loanAmount: 250000000,
+                    remainingBalance: 100000000,
+                    paidAmount: 150000000,
+                    interestRate: 7.2,
+                    nextPaymentDue: 'Jan 10, 2026',
+                    nextPaymentAmount: 7500000
+                }
+            ],
+            
+            documents: {
+                kycDocuments: [
+                    { name: 'KTP', status: 'verified', icon: 'idCard' },
+                    { name: 'Kartu Keluarga', status: 'verified', icon: 'family' },
+                    { name: 'Passport', status: 'optional', icon: 'passport' }
+                ],
+                financialDocuments: [
+                    { name: 'Bank Statements (3 months)', status: 'verified', icon: 'bank' },
+                    { name: 'Salary Slips', status: 'pending', icon: 'cashBag' }
+                ],
+                residenceDocuments: [
+                    { name: 'SKD (Surat Keterangan Domisili)', status: 'pending', icon: 'home' },
+                    { name: 'Proof of Financial Sufficiency', status: 'pending', icon: 'money' }
+                ]
+            },
+            
+            notifications: [
+                {
+                    type: 'warning',
+                    title: 'Payment Due: Rp 3,500,000 by Jan 15, 2026',
+                    meta: 'Two Wheeler Loan • 2 days left'
+                },
+                {
+                    type: 'success',
+                    title: 'Payment Successful',
+                    meta: 'Four Wheeler Loan • Dec 15, 2025 • Rp 7,500,000'
+                },
+                {
+                    type: 'info',
+                    title: 'Application Status Update',
+                    meta: 'MCOM (Cash Loan) • Under Review'
+                },
+                {
+                    type: 'info',
+                    title: 'MCOM (Cash Loan) Special Offer',
+                    meta: 'Unlock extra limit on MCOM with timely repayments'
+                }
+            ],
+            
+            loanProducts: [
+                {
+                    name: 'MCOM (Cash Loan)',
+                    description: 'Get instant cash up to IDR 5M with MCOM loans at low interest rate especially for you',
+                    rate: 10.5,
+                    isPublic: true
+                },
+                {
+                    name: 'Home Loan',
+                    description: 'Affordable home loans with flexible terms',
+                    rate: 8.5,
+                    isPublic: false
+                },
+                {
+                    name: 'Education Loan',
+                    description: 'Invest in your future with our education loans',
+                    rate: 7.5,
+                    isPublic: false
+                }
+            ]
+        };
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function formatCurrency(amount) {
+            return 'Rp ' + amount.toLocaleString('id-ID');
+        }
+
+        function formatCurrencyShort(amount) {
+            if (amount >= 1000000) {
+                return 'IDR ' + (amount / 1000000) + 'M';
+            }
+            return 'Rp ' + amount.toLocaleString('id-ID');
+        }
+
+        // ============================================
+        // SCREEN MANAGEMENT
+        // ============================================
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.querySelector(`.screen[data-name="${screenName}"]`);
+            if (target) {
+                target.classList.add('active');
+            }
+            if (screenName === 'welcome') {
+                setTimeout(() => {
+                    showScreen('dashboard');
+                    setActiveNav(0);
+                }, 3000);
+            }
+        }
+
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+
+        function setActiveNav(index) {
+            document.querySelectorAll('.nav-item').forEach((item, i) => {
+                item.classList.remove('active');
+                if (i === index) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        // Application Flow (only MCOM product public)
+        let currentApplicationStep = 1;
+        let applicationData = {
+            product: 'MCOM (Cash Loan)',
+            rate: 10.5,
+            amount: 0,
+            tenure: 0
+        };
+
+        function startApplication(product) {
+            const rates = {
+                'MCOM (Cash Loan)': 10.5
+            };
+            applicationData.product = product;
+            applicationData.rate = rates[product];
+            currentApplicationStep = 1;
+            document.getElementById('appStep1').style.display = 'block';
+            document.getElementById('appStep2').style.display = 'none';
+            document.getElementById('appStep3').style.display = 'none';
+            document.getElementById('selectedProduct').textContent = product;
+            document.getElementById('selectedRate').textContent = 'APR: ' + rates[product] + '%';
+            showScreen('application-form');
+        }
+
+        function updateStepIndicators(step) {
+            // Reset all
+            document.getElementById('stepIndicator1').style.background = step >= 1 ? 'var(--primary)' : '#E0E0E0';
+            document.getElementById('stepIndicator1').style.color = step >= 1 ? '#fff' : 'var(--text-secondary)';
+            document.getElementById('stepConnector1').style.background = step >= 2 ? 'var(--primary)' : '#E0E0E0';
+            document.getElementById('stepIndicator2').style.background = step >= 2 ? 'var(--primary)' : '#E0E0E0';
+            document.getElementById('stepIndicator2').style.color = step >= 2 ? '#fff' : 'var(--text-secondary)';
+            document.getElementById('stepConnector2').style.background = step >= 3 ? 'var(--primary)' : '#E0E0E0';
+            document.getElementById('stepIndicator3').style.background = step >= 3 ? 'var(--primary)' : '#E0E0E0';
+            document.getElementById('stepIndicator3').style.color = step >= 3 ? '#fff' : 'var(--text-secondary)';
+        }
+
+        function nextApplicationStep() {
+            if (currentApplicationStep === 1) {
+                currentApplicationStep = 2;
+                document.getElementById('appStep1').style.display = 'none';
+                document.getElementById('appStep2').style.display = 'block';
+                document.getElementById('appStep3').style.display = 'none';
+                updateStepIndicators(2);
+            } else if (currentApplicationStep === 2) {
+                const amount = document.getElementById('loanAmount').value;
+                const tenure = document.getElementById('tenure').value;
+                if (!amount || !tenure) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                applicationData.amount = parseInt(amount, 10);
+                applicationData.tenure = parseInt(tenure, 10);
+                const monthlyPayment = Math.ceil((amount / tenure) * (1 + (applicationData.rate / 100)));
+                document.getElementById('monthlyPayment').textContent = 'Rp ' + Number(monthlyPayment).toLocaleString('id-ID');
+                document.getElementById('reviewProduct').textContent = applicationData.product;
+                document.getElementById('reviewAmount').textContent = 'Rp ' + parseInt(amount, 10).toLocaleString('id-ID');
+                document.getElementById('reviewTenure').textContent = tenure + ' months';
+                currentApplicationStep = 3;
+                document.getElementById('appStep1').style.display = 'none';
+                document.getElementById('appStep2').style.display = 'none';
+                document.getElementById('appStep3').style.display = 'block';
+                updateStepIndicators(3);
+            }
+        }
+
+        function previousApplicationStep() {
+            if (currentApplicationStep === 3) {
+                currentApplicationStep = 2;
+                document.getElementById('appStep1').style.display = 'none';
+                document.getElementById('appStep2').style.display = 'block';
+                document.getElementById('appStep3').style.display = 'none';
+                updateStepIndicators(2);
+            } else if (currentApplicationStep === 2) {
+                currentApplicationStep = 1;
+                document.getElementById('appStep1').style.display = 'block';
+                document.getElementById('appStep2').style.display = 'none';
+                document.getElementById('appStep3').style.display = 'none';
+                updateStepIndicators(1);
+            }
+        }
+
+        function submitApplication() {
+            alert('Application submitted successfully! You will receive an email confirmation shortly.');
+            showScreen('applications');
+            setActiveNav(1);
+        }
+        // OTO Score setup
+        const score = 720; // example current score (0-1000)
+        function renderScore() {
+            const fill = document.getElementById('scoreFill');
+            const pointer = document.getElementById('scorePointer');
+            const track = document.getElementById('scoreTrack');
+            if (!fill || !pointer || !track) return;
+            const pct = Math.max(0, Math.min(100, (score / 1000) * 100));
+            fill.style.width = pct + '%';
+            const trackWidth = track.clientWidth;
+            pointer.style.left = `calc(${pct}% )`;
+            const sv = document.getElementById('scoreValue');
+            if (sv) sv.textContent = score;
+        }
+        // Payment: open, select method, gateway simulation
+        let payContext = {
+            loan: '?',
+            dueAmount: '?',
+            dueDate: '?',
+            method: 'Card',
+            mode: 'due',
+            custom: 0
+        };
+
+        function openPayment(loanName, amount, dueDate) {
+            payContext.loan = loanName;
+            payContext.dueAmount = amount;
+            payContext.dueDate = dueDate;
+            document.getElementById('payLoanName').textContent = loanName;
+            document.getElementById('payDueDate').textContent = dueDate;
+            document.getElementById('payDueAmount').textContent = amount;
+            setAmountMode('due');
+            selectMethod(document.querySelector('.pill[data-method="card"]'));
+            showScreen('payment');
+            setActiveNav(1);
+        }
+
+        function setAmountMode(mode) {
+            payContext.mode = mode;
+            const custom = document.getElementById('customAmt');
+            if (mode === 'custom') {
+                custom.style.display = 'block';
+                custom.focus();
+            } else {
+                custom.style.display = 'none';
+            }
+        }
+
+        function selectMethod(el) {
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            if (el) {
+                el.classList.add('active');
+                payContext.method = el.getAttribute('data-method');
+            }
+        }
+
+        function launchGateway() {
+            const modal = document.getElementById('gatewayModal');
+            const amt = payContext.mode === 'due' ? payContext.dueAmount : ('Rp ' + Number(document.getElementById('customAmt').value || 0).toLocaleString('id-ID'));
+            document.getElementById('gwLoanName').textContent = payContext.loan;
+            document.getElementById('gwAmount').textContent = amt;
+            const methodMap = {
+                card: 'Card',
+                va: 'Bank Transfer (VA)',
+                ewallet: 'E?Wallet',
+                qris: 'QRIS'
+            };
+            document.getElementById('gwMethod').textContent = methodMap[payContext.method] || 'Card';
+            modal.classList.add('open');
+        }
+
+        function closeGateway() {
+            document.getElementById('gatewayModal').classList.remove('open');
+        }
+
+        function completeGateway(success) {
+            closeGateway();
+            if (success) {
+                // Generate transaction ID
+                const txnId = 'TXN-2026-' + Math.random().toString().slice(2, 8).padStart(6, '0');
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+                // Populate transaction details
+                document.getElementById('txnId').textContent = txnId;
+                document.getElementById('txnDate').textContent = dateStr + ' ' + timeStr;
+                document.getElementById('txnLoan').textContent = document.getElementById('gwLoanName').textContent;
+                document.getElementById('txnMethod').textContent = document.getElementById('gwMethod').textContent;
+                document.getElementById('txnAmount').textContent = document.getElementById('gwAmount').textContent;
+
+                showScreen('payment-success');
+            } else {
+                alert('Payment failed. Please try again.');
+            }
+        }
+
+        function downloadReceipt() {
+            alert('Receipt downloaded successfully! (This is a demo)');
+        }
+
+        // ============================================
+        // DATA INITIALIZATION FUNCTIONS
+        // ============================================
+        function createBottomNav() {
+            return NAV_ITEMS.map(item => 
+                `<button class="nav-item" onclick="showScreen('${item.screen}'); setActiveNav(${item.index})">${ICONS[item.icon]}</button>`
+            ).join('');
+        }
+
+        function initializeNavigation() {
+            const navHTML = createBottomNav();
+            document.querySelectorAll('.bottom-nav').forEach(nav => {
+                nav.innerHTML = navHTML;
+            });
+            // Set first nav as active (dashboard)
+            const firstNav = document.querySelector('.screen.active .bottom-nav');
+            if (firstNav) {
+                const firstButton = firstNav.querySelector('.nav-item');
+                if (firstButton) firstButton.classList.add('active');
+            }
+            console.log('✅ Navigation generated from NAV_ITEMS');
+        }
+
+        function updateAllIcons() {
+            // Update password toggle icon
+            document.querySelectorAll('.password-toggle').forEach(btn => {
+                if (btn.textContent === '👁️') btn.textContent = ICONS.eye;
+            });
+
+            // Update payment method icons
+            const paymentMethods = {
+                '💳': ICONS.creditCard,
+                '🏦': ICONS.bank,
+                '📱': ICONS.mobilePayment,
+                '📲': ICONS.qrPayment
+            };
+            document.querySelectorAll('.pill').forEach(pill => {
+                Object.keys(paymentMethods).forEach(oldIcon => {
+                    if (pill.textContent.includes(oldIcon)) {
+                        pill.innerHTML = pill.innerHTML.replace(oldIcon, paymentMethods[oldIcon]);
+                    }
+                });
+            });
+
+            console.log('✅ All icons updated from ICONS object');
+        }
+
+        function initializeDashboard() {
+            // Update credit summary stats
+            const outstandingEl = document.querySelector('.stat-card:nth-child(1) .stat-value');
+            const paidEl = document.querySelector('.stat-card:nth-child(2) .stat-value');
+            if (outstandingEl) outstandingEl.textContent = formatCurrency(APP_DATA.creditSummary.outstanding);
+            if (paidEl) paidEl.textContent = formatCurrency(APP_DATA.creditSummary.paid);
+            
+            // Update Special Offer (use first public loan product)
+            const specialOffer = APP_DATA.loanProducts.find(p => p.isPublic);
+            if (specialOffer) {
+                const titleEl = document.querySelector('.section[style*="gradient"] h4');
+                const descEl = document.querySelector('.section[style*="gradient"] p');
+                if (titleEl) titleEl.textContent = specialOffer.name + ' Special Offer';
+                if (descEl) descEl.textContent = specialOffer.description;
+            }
+        }
+
+        function initializeLoansScreen() {
+            // This would dynamically generate loan cards from APP_DATA.loans
+            // For now, the HTML is already matching our data structure
+            // In future, you can generate the entire loan list dynamically
+        }
+
+        function initializeProfile() {
+            // Update profile header
+            const profileName = document.querySelector('.profile-header h2');
+            const profileEmail = document.querySelector('.profile-header p');
+            if (profileName) profileName.textContent = APP_DATA.user.name;
+            if (profileEmail) profileEmail.textContent = APP_DATA.user.email;
+        }
+
+        function initializeApp() {
+            console.log('🚀 App initialized with data-driven approach');
+            console.log('📊 Credit Summary:', APP_DATA.creditSummary);
+            console.log('💳 Active Loans:', APP_DATA.loans.length);
+            console.log('📄 Documents:', Object.values(APP_DATA.documents).flat().length);
+            
+            // Generate navigation from NAV_ITEMS
+            initializeNavigation();
+            
+            // Update all icons from ICONS object
+            updateAllIcons();
+            
+            // Initialize all screens
+            initializeDashboard();
+            initializeLoansScreen();
+            initializeProfile();
+        }
+
+        function startDemoFlow() {
+            showScreen('login');
+            initializeApp();
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            startDemoFlow();
+            setTimeout(renderScore, 300);
+        });
+    </script>
+</body>
+
+</html>
